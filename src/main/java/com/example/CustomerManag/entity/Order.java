@@ -18,12 +18,14 @@ public class Order {
     @ManyToOne(cascade = CascadeType.ALL ,fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id")
     private Customer customer;
+    @OneToMany(cascade = CascadeType.ALL ,fetch = FetchType.LAZY)
     private List<Item> items = new ArrayList<>();
 
     public Order(Long id, Date date, Customer customer, List<Item> items) {
         this.id = id;
         this.date = date;
         this.customer = customer;
+        this.items = items;
 
     }
 
