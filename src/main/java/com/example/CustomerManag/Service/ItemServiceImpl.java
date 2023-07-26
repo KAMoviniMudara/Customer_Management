@@ -27,23 +27,12 @@ public class ItemServiceImpl implements ItemService {
         this.orderService = orderService;
     }
 
-    @Transactional
     @Override
     public ItemResponseDto addItem(ItemRequestDto itemRequestDto) {
         Item item = new Item();
         item.setName(itemRequestDto.getName());
-        if(itemRequestDto.getOrderId()==null) {
-            return itemRepository.save(item);
-        }
-
-            List<Order> orders = new ArrayList();
-            for (Long orderId: itemRequestDto.getOrderIds()){
-                Order order = orderService.getOrder(orderId);
-                orders.add(order);
-            }
-            item.setOrders(orders);
-        }
-
+        itemRepository.save(item);
+        return mapper.itemToItemResponseDto(item);
     }
 
     @Override
@@ -75,34 +64,27 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemResponseDto editItem(Long itemId, ItemRequestDto bookRequestDto) {
+    public ItemResponseDto editItem(Long itemId, ItemRequestDto itemRequestDto) {
         Item itemToEdit = getItem(itemId);
         itemToEdit.setName(itemRequestDto.getName());
-        if (!itemRequestDto.getOrderIds().isEmpty()) {
-            List<Order> orders = new ArrayList<>();
-            for (Long orderId : itemRequestDto.getOrderIds()) {
-                Order author = orderService.getOrder(orderId);
-                orders.add(order);
-            }
-            itemToEdit.setOrders(orders);
-        }
+        return mapper.itemToItemResponseDto(itemToEdit);
     }
 
     @Override
-    public ItemResponseDto addOrderToItem(Long ItemId, Long orderId) {
-            Item item = getItem(ItemId);
+    public ItemResponseDto addItemToOrder(Long orderId, Long itemId) {
+            Item item = getItem(itemId);
             Order order= orderService.getOrder(orderId);
 
-            item.setOrder(order);
-            return item;
+
+            order.addItem(item);
+            return mapper.itemToItemResponseDto(item);
     }
 
     @Override
-    public ItemResponseDto deleteOrderFromBook(Long itemId, Long orderId) {
-        Item item = getItem(ItemId);
-        Order order = orderService.getOrder(OrderId);
+    public ItemResponseDto deleteItemFromOrder(Long itemId, Long orderId) {
+        Item item = getItem(itemId);
+        Order order = orderService.getOrder(orderId);
 
-        order.deleteItem(item);
         item.deleteOrder(order);
         return mapper.itemToItemResponseDto(item);
 

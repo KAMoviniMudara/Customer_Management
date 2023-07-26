@@ -5,10 +5,10 @@ import com.example.CustomerManag.dto.requestDto.OrderRequestDto;
 import com.example.CustomerManag.dto.responseDto.OrderResponseDto;
 import com.example.CustomerManag.entity.Customer;
 import com.example.CustomerManag.entity.Order;
-import com.example.CustomerManag.repository.CustomerRepository;
 import com.example.CustomerManag.repository.OrderRepository;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -17,30 +17,23 @@ import java.util.stream.StreamSupport;
 @Service
 public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
-    private final CustomerRepository customerRepository;
+    private final CustomerService customerService;
 
-    public OrderServiceImpl(OrderRepository orderRepository, CustomerRepository customerRepository) {
+    public OrderServiceImpl(OrderRepository orderRepository, CustomerService customerService) {
         this.orderRepository = orderRepository;
-        this.customerRepository = customerRepository;
+        this.customerService = customerService;
     }
 
+    @Transactional
     @Override
     public OrderResponseDto addOrder(OrderRequestDto orderRequestDto) {
         Order order = new Order();
-        order.setId(orderRequestDto.getId());
+        order.setId(Long.valueOf(orderRequestDto.getName()));
         if (orderRequestDto.getCustomerId() == null) {
             throw new IllegalArgumentException("order need a customer");
         }
         Customer customer = customerService.getCustomer(orderRequestDto.getCustomerId());
-        customer.setCustomer(customer);
-        orderRepository.save(order);
-        return mapper.orderToOrderResponseDto(order); order = new Order();
-        order.setName(orderRequestDto.getName());
-        if (orderRequestDto.getZipcodeId() == null) {
-            throw new IllegalArgumentException("order need a zipcode");
-        }
-        Customer customer = customerService.getCustomer(customerRequestDto.getCustomerId());
-        customer.setCustomer(customer);
+        order.setCustomer(customer);
         orderRepository.save(order);
         return mapper.orderToOrderResponseDto(order);
     }
@@ -50,7 +43,7 @@ public class OrderServiceImpl implements OrderService {
         List<Order> orders = StreamSupport
                 .stream(orderRepository.findAll().spliterator(), false)
                 .collect(Collectors.toList());
-        return mapper.ordersToOrderResponseDtos(orders);
+        return mapper.ordersToOrderResponseDto(orders);
     }
 
     @Override
@@ -76,9 +69,9 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderResponseDto editOrder(Long orderId, OrderRequestDto orderRequestDto) {
         Order orderToEdit = getOrder(orderId);
-        orderToEdit.setId(orderRequestDto.getId());
+        orderToEdit.setId(orderRequestDto.getCustomerId());
         if (orderRequestDto.getCustomerId() != null){
-            Customer customer = customerSerivice.getCustomer(orderRequestDto.getCustomerId());
+            Customer customer = customerService.getCustomer(orderRequestDto.getCustomerId());
             orderToEdit.setCustomer(customer);
         }
         return mapper.orderToOrderResponseDto(orderToEdit);
