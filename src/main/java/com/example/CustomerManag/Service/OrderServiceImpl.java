@@ -10,6 +10,7 @@ import com.example.CustomerManag.repository.OrderRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -54,31 +55,50 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderResponseDto getOrderById(Long orderId) {
-        return null;
+        return mapper.orderToOrderResponseDto(getOrder(orderId));
     }
 
     @Override
     public Order getOrder(Long orderId) {
-        return null;
+        Order order = orderRepository.findById(orderId).orElseThrow(()->
+                new IllegalArgumentException(
+                        "order with id: " + orderId + "could not be found"));
+                return order;
     }
 
     @Override
     public OrderResponseDto deleteOrder(Long orderId) {
-        return null;
+        Order order = getOrder(orderId);
+        orderRepository.delete(order);
+        return mapper.orderToOrderResponseDto(order);
     }
 
     @Override
     public OrderResponseDto editOrder(Long orderId, OrderRequestDto orderRequestDto) {
-        return null;
+        Order orderToEdit = getOrder(orderId);
+        orderToEdit.setId(orderRequestDto.getId());
+        if (orderRequestDto.getCustomerId() != null){
+            Customer customer = customerSerivice.getCustomer(orderRequestDto.getCustomerId());
+            orderToEdit.setCustomer(customer);
+        }
+        return mapper.orderToOrderResponseDto(orderToEdit);
     }
 
     @Override
     public OrderResponseDto addCustomerToOrder(Long orderId, Long customerId) {
-        return null;
+        Order order = getOrder(orderId);
+        Customer customer = customerService.getCustomer(customerId);
+        if(Objects.nonNull(order.getCustomer())){
+            throw new RuntimeException("Order already has a customer");
+        }
+        order.setCustomer(customer);
+        return mapper.orderToOrderResponseDto(order);
     }
 
     @Override
     public OrderResponseDto deleteCustomerFromOrder(Long orderId) {
-        return null;
+        Order order = getOrder(orderId);
+        order.setCustomer(null);
+        return mapper.orderToOrderResponseDto(order);
     }
 }
