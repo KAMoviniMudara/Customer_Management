@@ -1,5 +1,6 @@
 package com.example.CustomerManag.Service;
 
+import com.example.CustomerManag.dto.mapper;
 import com.example.CustomerManag.dto.requestDto.ItemRequestDto;
 import com.example.CustomerManag.dto.responseDto.ItemResponseDto;
 import com.example.CustomerManag.entity.Item;
@@ -11,6 +12,9 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Service
 public class ItemServiceImpl implements ItemService {
@@ -28,9 +32,10 @@ public class ItemServiceImpl implements ItemService {
     public ItemResponseDto addItem(ItemRequestDto itemRequestDto) {
         Item item = new Item();
         item.setName(itemRequestDto.getName());
-        if(itemRequestDto.getOrderIds().isEmpty()) {
-            throw new IllegalArgumentException("you need at least on order");
-        } else {
+        if(itemRequestDto.getOrderId()==null) {
+            return itemRepository.save(item);
+        }
+
             List<Order> orders = new ArrayList();
             for (Long orderId: itemRequestDto.getOrderIds()){
                 Order order = orderService.getOrder(orderId);
@@ -38,40 +43,69 @@ public class ItemServiceImpl implements ItemService {
             }
             item.setOrders(orders);
         }
+
     }
 
     @Override
     public ItemResponseDto getItemById(Long itemId) {
-        return null;
+        Item item = getItem(itemId);
+        return mapper.itemToItemResponseDto(item);
     }
 
     @Override
     public Item getItem(Long itemId) {
-        return null;
+        Item item = itemRepository.findById(itemId).orElseThrow(() ->
+                new IllegalArgumentException("cannot find item with id: " + itemId));
+        return item;
     }
 
     @Override
     public List<ItemResponseDto> getItems() {
-        return null;
+        List<Item>items = StreamSupport
+                .stream(itemRepository.findAll().spliterator(),false)
+                .collect(Collectors.toList());
+        return mapper.itemsToItemResponseDto(items);
     }
 
     @Override
     public ItemResponseDto deleteItem(Long itemId) {
-        return null;
+        Item item = getItem(itemId);
+        itemRepository.delete(item);
+        return mapper.itemToItemResponseDto(item);
     }
 
     @Override
     public ItemResponseDto editItem(Long itemId, ItemRequestDto bookRequestDto) {
-        return null;
+        Item itemToEdit = getItem(itemId);
+        itemToEdit.setName(itemRequestDto.getName());
+        if (!itemRequestDto.getOrderIds().isEmpty()) {
+            List<Order> orders = new ArrayList<>();
+            for (Long orderId : itemRequestDto.getOrderIds()) {
+                Order author = orderService.getOrder(orderId);
+                orders.add(order);
+            }
+            itemToEdit.setOrders(orders);
+        }
     }
 
     @Override
     public ItemResponseDto addOrderToItem(Long ItemId, Long orderId) {
-        return null;
+            Item item = getItem(ItemId);
+            Order order= orderService.getOrder(orderId);
+
+            item.setOrder(order);
+            return item;
     }
 
     @Override
     public ItemResponseDto deleteOrderFromBook(Long itemId, Long orderId) {
-        return null;
+        Item item = getItem(ItemId);
+        Order order = orderService.getOrder(OrderId);
+
+        order.deleteItem(item);
+        item.deleteOrder(order);
+        return mapper.itemToItemResponseDto(item);
+
+
     }
 }
