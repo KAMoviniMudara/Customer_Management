@@ -74,9 +74,11 @@ public class ItemServiceImpl implements ItemService {
     public ItemResponseDto addItemToOrder(Long orderId, Long itemId) {
             Item item = getItem(itemId);
             Order order= orderService.getOrder(orderId);
-
-
-            order.addItem(item);
+            if(Objects.nonNull(order.getItem())){
+                throw new IllegalArgumentException("item already has a order");
+            }
+            order.setItem(item);
+            item.addOrder(order);
             return mapper.itemToItemResponseDto(item);
     }
 

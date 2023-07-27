@@ -94,4 +94,9 @@ public class OrderServiceImpl implements OrderService {
         order.setCustomer(null);
         return mapper.orderToOrderResponseDto(order);
     }
+
+    @Override
+    public List<OrderResponseDto> getOrder() {
+        return null;
+    }
 }
