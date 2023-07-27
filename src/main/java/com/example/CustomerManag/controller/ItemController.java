@@ -54,14 +54,14 @@ public class ItemController {
     @PostMapping("/addOrder/{orderId}/to/{itemId}")
     public ResponseEntity<ItemResponseDto> addOrder(@PathVariable final Long orderId,
                                                      @PathVariable final Long itemId) {
-        ItemResponseDto itemResponseDto = itemService.addOrderToItem(itemId, orderId);
+        ItemResponseDto itemResponseDto = itemService.addItemToOrder(itemId, orderId);
         return new ResponseEntity<>(itemResponseDto, HttpStatus.OK);
     }
 
     @PostMapping("/removeOrder/{orderId}/from/{itemId}")
     public ResponseEntity<ItemResponseDto> removeOrder(@PathVariable final Long orderId,
                                                         @PathVariable final Long itemId) {
-        ItemResponseDto itemResponseDto = itemService.deleteOrderFromItem(itemId, orderId);
+        ItemResponseDto itemResponseDto = itemService.deleteItemFromOrder(itemId, orderId);
         return new ResponseEntity<>(itemResponseDto, HttpStatus.OK);
     }
 }

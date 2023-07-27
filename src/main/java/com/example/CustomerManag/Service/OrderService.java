@@ -15,4 +15,6 @@ public interface OrderService {
     public OrderResponseDto editOrder(Long orderId, OrderRequestDto orderRequestDto);
     public OrderResponseDto addCustomerToOrder(Long orderId, Long customerId);
     public OrderResponseDto deleteCustomerFromOrder(Long orderId);
+
+    public List<OrderResponseDto> getOrder();
 }

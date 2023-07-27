@@ -15,6 +15,6 @@ public interface ItemService {
     public List<ItemResponseDto> getItems();
     public ItemResponseDto deleteItem(Long itemId);
     public ItemResponseDto editItem(Long itemId, ItemRequestDto bookRequestDto);
-    public ItemResponseDto addOrderToItem(Long ItemId, Long orderId);
-    public ItemResponseDto deleteOrderFromBook(Long itemId, Long orderId);
+    public ItemResponseDto addItemToOrder(Long ItemId, Long orderId);
+    public ItemResponseDto deleteItemFromOrder (Long itemId, Long orderId);
 }
